@@ -42,7 +42,7 @@ $ ./canvas-export.py -h
 ```
 
 ## Warnings
-As noted in the [API documentation](https://canvas.instructure.com/doc/api/), parts of the API, including the [Content Exports API](https://canvas.instructure.com/doc/api/content_exports.html#ContentExport) used here is still in beta and is subject to breaking changes.
+As noted in the [API documentation](https://canvas.instructure.com/doc/api/), parts of the API, including the [Content Exports API](https://canvas.instructure.com/doc/api/content_exports.html#ContentExport) used here are still in beta and are subject to breaking changes.
 
 ## License
 Copyright 2017 Matthew Howard
