@@ -115,15 +115,43 @@ def generate_parser():
 
     return parser
 
+def make_course_map(course_idens, ids_to_code):
+    '''Generates a dict of id => course_code based off a list of identifiers
+
+    Arguments:
+    course_idens - A list of strings either representing ids or course codes
+    ids_to_code - A dict of id => course code for all available courses
+    '''
+
+    codes_to_id = {v: k for k, v in ids_to_code.items()}
+
+    courses_to_export = {}
+
+    for course_iden in course_idens:
+        if course_iden in codes_to_id:
+            # define by code
+            course_id = codes_to_id[course_iden]
+            courses_to_export[course_id] = course_iden
+        elif course_iden.isdigit():
+            # define by id
+            course_id = int(course_iden)
+            if course_id in ids_to_code:
+                courses_to_export[course_id] = ids_to_code[course_id]
+            else:
+                print('Skipping course id %d, course not found' % course_id)
+        else:
+            print('Skipping %s, course not found' % course_iden)
+
+    return courses_to_export
+
 def main():
     parser = generate_parser()
     args = parser.parse_args()
 
+    # config client class
     access_token = get_access_token()
-    api_base = get_api_base();
-
-    # TODO make API base agnostic
-    client = CanvasClient(access_token, 'https://canvas.upenn.edu')
+    api_base = get_api_base()
+    client = CanvasClient(access_token, api_base)
 
     all_courses = client.get_courses()
 
@@ -132,37 +160,18 @@ def main():
             print('%s\t%s' % (course['course_code'], course['name']))
         return
 
-    # mapping of id -> course_code
-    courses_to_export = {}
+    ids_to_code = {course['id']: course['course_code'] for course in all_courses}
 
-    ids_to_code = dict([(course['id'], course['course_code'])
-            for course in all_courses])
+    courses_to_export = None
 
     if args.export_all:
         courses_to_export = ids_to_code
     else:
-        # export based on list
-        if not len(args.courses):
-            print("No courses listed to export. Exiting.")
-            return
+        courses_to_export = make_course_map(args.courses, ids_to_code)
 
-        codes_to_id = dict([(course['course_code'], course['id'])
-            for course in all_courses])
-
-        for course_iden in args.courses:
-            if course_iden in codes_to_id:
-                # define by code
-                course_id = codes_to_id[course_iden]
-                courses_to_export[course_id] = course_iden
-            elif course_iden.isdigit():
-                # define by id
-                course_id = int(course_iden)
-                if course_id in ids_to_code:
-                    courses_to_export[course_id] = ids_to_code[course_id]
-                else:
-                    print('Skipping course id %d, course not found' % course_id)
-            else:
-                print('Skipping %s, course not found' % course_iden)
+    if not len(courses_to_export):
+        print("No courses to export. Exiting.")
+        return
 
     for course_id, course_code in courses_to_export.items():
         download_filename = '%s.zip' % course_code
