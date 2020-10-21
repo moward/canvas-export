@@ -157,10 +157,14 @@ def main():
 
     if args.list:
         for course in all_courses:
-            print('%s\t%s' % (course['course_code'], course['name']))
+            if('course_code' in course):
+                print('%s\t%s' % (course['course_code'], course['name']))
         return
 
-    ids_to_code = {course['id']: course['course_code'] for course in all_courses}
+    ids_to_code = {}
+    for course in all_courses:
+        if 'name' in course:
+            ids_to_code[course['id']] = course['course_code']
 
     courses_to_export = None
 
