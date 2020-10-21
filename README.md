@@ -2,7 +2,7 @@
 A Python-based command-line utility to export a user's courses to their local filesystem.
 
 ## Dependencies
-User must have Python 3 installed
+User must have Python 3 installed and must have the package `requests` installed. `requests` can be installed via pip by running `pip install` in the root directory of this project.
 
 ## Usage
 This tool relies on two environmental variables: `CANVAS_ACCESS_TOKEN` and
